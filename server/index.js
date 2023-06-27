@@ -12,7 +12,14 @@ const io = new SocketServer(server, {
 })
 
 io.on("connection", (socket) => {
-  console.log("Client connected")
+  //console.log(socket.id)
+  console.log(socket.id.slice(5))
+  socket.on("message", (body) => {
+    socket.broadcast.emit("message", {
+      body,
+      from: socket.id.slice(0, 5),
+    })
+  })
 })
 
 server.listen(4000)
