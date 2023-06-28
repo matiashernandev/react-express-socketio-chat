@@ -2,18 +2,23 @@ import express from "express"
 import http from "http"
 
 import { Server as SocketServer } from "socket.io"
+import { resolve } from "path"
+import { PORT } from "./config.js"
+import morgan from "morgan"
 
 const app = express()
 const server = http.createServer(app)
+
 const io = new SocketServer(server, {
   /*  cors: {
     origin: "http://localhost:5173",
   }, */
 })
 
+app.use(morgan("dev"))
+app.use(express.static(resolve("frontend/dist")))
+
 io.on("connection", (socket) => {
-  //console.log(socket.id)
-  console.log(socket.id.slice(5))
   socket.on("message", (body) => {
     socket.broadcast.emit("message", {
       body,
@@ -22,6 +27,6 @@ io.on("connection", (socket) => {
   })
 })
 
-server.listen(4000)
+server.listen(PORT)
 
-console.log(`server on port ${4000}`)
+console.log(`server on port ${PORT}`)
