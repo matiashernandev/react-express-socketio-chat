@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "dev": "nodemon server/index.js --ignore frontend",
-    "build": "pnpm install --prefix frontend && pnpm run --prefix frontend build",
+    "build": "pnpm install && pnpm install --prefix frontend && pnpm run --prefix frontend build",
     "start": "node server/index.js"
   },
   "keywords": [],
