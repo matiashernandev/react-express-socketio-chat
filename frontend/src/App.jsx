@@ -1,28 +1,12 @@
 import { useEffect, useState } from "react"
 import io from "socket.io-client"
 
+// const socket = io("http://localhost:4000");
 const socket = io("/")
 
 export default function App() {
-  const [message, setMessage] = useState("")
   const [messages, setMessages] = useState([])
-
-  const handleSubmit = (e) => {
-    e.preventDefault()
-
-    const newMessage = {
-      body: message,
-      from: "Me",
-    }
-
-    setMessages([...messages, newMessage])
-
-    socket.emit("message", message)
-
-    //*const formData = new FormData(e.target)
-    //*const data = Object.fromEntries(formData)
-    //*console.log(data)
-  }
+  const [message, setMessage] = useState("")
 
   useEffect(() => {
     socket.on("message", receiveMessage)
@@ -32,29 +16,47 @@ export default function App() {
     }
   }, [])
 
-  const receiveMessage = (message) => {
-    setMessages((state) => [...state, message])
+  const receiveMessage = (message) =>
+    setMessages((state) => [message, ...state])
+
+  const handleSubmit = (event) => {
+    event.preventDefault()
+    const newMessage = {
+      body: message,
+      from: "Me",
+    }
+    setMessages((state) => [newMessage, ...state])
+    setMessage("")
+    socket.emit("message", newMessage.body)
   }
 
   return (
-    <div>
-      <form onSubmit={handleSubmit}>
+    <div className="h-screen bg-zinc-800 text-white flex items-center justify-center">
+      <form onSubmit={handleSubmit} className="bg-zinc-900 p-10">
+        <h1 className="text-2xl font-bold my-2">Socket.io Chat</h1>
         <input
-          onChange={(e) => setMessage(e.target.value)}
-          name="chat"
+          name="message"
           type="text"
-          placeholder="Hola hola! Todo bien?"
+          placeholder="Write your message..."
+          onChange={(e) => setMessage(e.target.value)}
+          className="border-2 border-zinc-500 p-2 w-full text-black"
+          value={message}
+          autoFocus
         />
-        <button>Send</button>
-      </form>
 
-      <ul>
-        {messages.map((msg, i) => (
-          <li key={i}>
-            {msg.from}:{msg.body}
-          </li>
-        ))}
-      </ul>
+        <ul className="h-80 overflow-y-auto">
+          {messages.map((message, index) => (
+            <li
+              key={index}
+              className={`my-2 p-2 table text-sm rounded-md ${
+                message.from === "Me" ? "bg-sky-700 ml-auto" : "bg-black"
+              }`}
+            >
+              <b>{message.from}</b>: {message.body}
+            </li>
+          ))}
+        </ul>
+      </form>
     </div>
   )
 }
